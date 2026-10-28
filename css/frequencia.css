@@ -1,0 +1,87 @@
+/* ---------- Frequencia e evasao ---------- */
+.freq-dica{font-size:12px;color:var(--texto-fraco);line-height:1.4;margin:-4px 0 12px}
+.freq-aviso{
+  font-size:13px;line-height:1.45;font-weight:700;margin-bottom:12px;padding:9px 11px;
+  background:var(--amarelo);color:var(--marinho);border:2px solid var(--marinho);border-radius:12px;
+}
+
+/* chips de risco e de justificativa (texto sempre junto da cor) */
+.chip-risco,.chip-just{
+  display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;
+  border:2px solid var(--marinho);white-space:nowrap;
+}
+.chip-risco.alto{background:#C2184A;color:#fff}
+.chip-risco.medio{background:var(--amarelo);color:var(--marinho)}
+.chip-risco.baixo{background:var(--verde);color:var(--marinho)}
+.chip-just.sem{background:#8A6A20;color:#fff}
+.chip-just.pendente{background:var(--amarelo);color:var(--marinho)}
+.chip-just.aceita{background:var(--verde);color:var(--marinho)}
+.chip-just.recusada{background:#C2184A;color:#fff}
+
+/* radar do professor */
+.freq-radar{border-color:#C2184A;box-shadow:0 5px 0 #7A0F2F}
+.freq-aluno{
+  display:flex;gap:10px;align-items:center;width:100%;text-align:left;cursor:pointer;
+  background:var(--roxo-esc);color:#fff;border:2px solid var(--marinho);border-radius:14px;
+  padding:9px;margin-bottom:8px;font-family:inherit;
+}
+.freq-aluno.alto{border-left:8px solid #C2184A}
+.freq-aluno.medio{border-left:8px solid var(--amarelo)}
+.freq-aluno:hover{background:var(--roxo-claro)}
+.freq-aluno:focus-visible,.freq-arq:focus-visible{outline:3px solid var(--amarelo);outline-offset:2px}
+.freq-aluno-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.freq-aluno-nome{font-size:14px;font-weight:800}
+.freq-aluno-meta{font-size:12px;color:var(--texto-fraco)}
+.freq-aluno-meta b{color:#fff}
+.freq-aluno-chips{display:flex;gap:5px;flex-wrap:wrap}
+
+/* resumo e grafico */
+.freq-resumo{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.freq-pct{font-size:14px;font-weight:800;color:var(--amarelo)}
+.freq-grafico{background:var(--roxo-esc);border:2px solid var(--marinho);border-radius:14px;padding:8px 6px 0;margin-bottom:12px}
+.freq-grafico svg{display:block}
+
+/* registrar falta */
+.freq-registrar{margin-bottom:12px}
+.freq-linha{display:flex;gap:8px}
+.freq-linha input{flex:1;min-width:0}
+.freq-linha .acao{width:auto;flex:none;padding:10px 12px;font-size:12px}
+
+/* lista de faltas */
+.freq-lista{list-style:none;padding:0;margin:0}
+.freq-item{
+  background:var(--roxo-esc);border:2px solid var(--marinho);border-radius:12px;
+  padding:9px 10px;margin-bottom:8px;font-size:13px;
+}
+.freq-item-topo{display:flex;align-items:center;gap:8px}
+.freq-item-topo b{flex:1;font-size:14px}
+.freq-item-topo .del{width:28px;height:28px;font-size:15px}
+.freq-texto{margin-top:7px;line-height:1.45;font-style:italic;color:#fff}
+.freq-item .freq-dica{margin:6px 0 0}
+.freq-arq{
+  display:flex;align-items:center;gap:8px;margin-top:8px;width:100%;cursor:pointer;
+  background:var(--roxo);color:#fff;border:2px solid var(--marinho);border-radius:10px;
+  padding:6px;font-family:inherit;font-size:12px;font-weight:800;text-align:left;
+}
+.freq-arq img{width:52px;height:52px;object-fit:cover;border-radius:7px;border:2px solid var(--marinho);background:#fff}
+.freq-arq.pdf{padding:10px}
+.freq-avaliar{margin-top:8px}
+.freq-avaliar .acao{padding:9px;font-size:12px}
+.freq-btn-just{margin-top:8px;padding:9px;font-size:12px}
+
+/* formulario de justificativa do aluno */
+.freq-form{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.freq-form label{margin:4px 0 0}
+.freq-form textarea{
+  width:100%;padding:10px;border-radius:12px;border:2px solid var(--marinho);
+  background:var(--roxo-input);color:#fff;font-size:14px;font-family:inherit;resize:vertical;
+}
+.freq-form textarea:focus{outline:none;border-color:var(--amarelo)}
+.freq-form input[type=file]{padding:8px;font-size:12px}
+.freq-form .freq-dica{margin:0}
+.freq-preview{display:flex;align-items:center;gap:8px;font-size:12px}
+.freq-preview img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:2px solid var(--marinho);background:#fff}
+
+/* atestado ampliado */
+.freq-modal{max-width:520px}
+.freq-modal img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:10px;border:2px solid var(--marinho);background:#fff;margin-bottom:12px}

@@ -119,7 +119,8 @@ function telaPerfil(semSeletor){
   h += '</div></div>';
 
   // so o aluno logado ve a missao e a propria liga, logo abaixo da ficha
-  if (semSeletor) h += cardMissoes(a) + cardLigaAluno(a);
+  if (semSeletor) h += cardFaltasAluno(a) + cardMissoes(a) + cardLigaAluno(a);
+  else            h += cardFrequenciaProf(a);
 
   // progresso
   h += '<div class="card"><h2>Progresso</h2>';
@@ -173,11 +174,6 @@ function telaNotas(){
   });
   h += '</div>';
 
-  h += '<div class="card"><h2>Frequência</h2>' +
-         '<label>Faltas</label>' +
-         '<input type="number" step="1" min="0" id="faltas" value="'+a.faltas+'">' +
-       '</div>';
-
   h += '<button class="acao" id="btnSalvarNotas">SALVAR NOTAS</button>';
   return h;
 }
@@ -198,14 +194,6 @@ function salvarNotas(){
     valores.push(v);
   }
 
-  var elF = document.getElementById('faltas');
-  var brutoF = elF.value.trim();
-  if (brutoF === '') { aviso('Preencha o campo de faltas', true); elF.focus(); return; }
-  var faltas = Number(brutoF);
-  if (isNaN(faltas) || faltas < 0 || faltas !== Math.floor(faltas)) {
-    aviso('Faltas deve ser um número inteiro maior ou igual a 0', true); elF.focus(); return;
-  }
-
   // XP entra apenas para nota que realmente mudou, senao daria para
   // farmar XP infinito clicando em salvar com os mesmos valores
   var ganho = 0;
@@ -213,7 +201,6 @@ function salvarNotas(){
     if (Number(a.materias[i].nota) !== v) ganho += v * 10;
     a.materias[i].nota = v;
   });
-  a.faltas = faltas;
   a.xp += ganho;
 
   var subiu   = subirNivel(a);
@@ -257,7 +244,8 @@ function telaTurma(){
          '</div>';
   });
   h += '</div>';
-  return h + cardLigasProfessor();
+  // no celular o radar abre a aba; no monitor ele ja esta no topo da coluna
+  return (ehDesktop() ? '' : cardRadarEvasao()) + h + cardLigasProfessor();
 }
 
 /* =========================================================
@@ -378,7 +366,7 @@ function painelProfessor(){
   return '<div class="painel">' +
            '<div class="col-lado">'   + telaGerenciar() + '</div>' +
            '<div class="col-centro">' + telaPerfil() + telaNotas() + '</div>' +
-           '<div class="col-lado">'   + cardAlertas() + telaTurma() + '</div>' +
+           '<div class="col-lado">'   + cardRadarEvasao() + cardAlertas() + telaTurma() + '</div>' +
          '</div>';
 }
 

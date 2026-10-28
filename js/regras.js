@@ -55,6 +55,14 @@ function rank(a){
 // tudo que merece atencao do professor, em ordem de gravidade
 function alertas(){
   var lista = [];
+  // faltas seguidas primeiro: e o sinal mais cedo de evasao
+  db.alunos.forEach(function(a){
+    var s = sequenciaFaltas(a);
+    if (!s.recente || s.dias < 2) return;
+    var pend = justPendentes(a);
+    lista.push({ id:a.id, tipo:'falta', ic:'\u{1F4C5}', txt: a.nome + ' faltou ' + s.dias + ' dias seguidos (até ' + dataCurta(s.ate) + ')' +
+                 (pend ? ' · justificativa para analisar' : (semJustificativa(a) ? ' · sem justificativa' : '')) });
+  });
   db.alunos.forEach(function(a){
     if (media(a) < 6) lista.push({ id:a.id, tipo:'risco', ic:'\u{1F6A8}', txt: a.nome + ' está EM RISCO, média ' + n1(media(a)) });
   });

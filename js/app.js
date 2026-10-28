@@ -87,6 +87,7 @@ function ligarEventos(){
   });
 
   ligarMissoes();
+  ligarFrequencia();
 }
 
 document.querySelectorAll('.aba').forEach(function(b){

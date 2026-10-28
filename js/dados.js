@@ -1,8 +1,8 @@
 /* =========================================================
    ETAPA 1 - MODELO DE DADOS + PERSISTENCIA (localStorage)
    ========================================================= */
-// v2: novos alunos de exemplo com media anterior; o v1 fica guardado no navegador, intocado
-var KEY = 'eduquest_v2';
+// v3: faltas com data e justificativa; as versoes antigas ficam guardadas no navegador, intocadas
+var KEY = 'eduquest_v3';
 
 var MATERIAS = ['Lógica de Programação','Game Design','Arte para Jogos','Banco de Dados','Matemática para Jogos'];
 var ABREV    = ['Lógica','Game Design','Arte','Banco de Dados','Matemática'];
@@ -34,12 +34,13 @@ function novasMaterias(){
 }
 
 function novoAluno(nome){
-  return { id:uid(), matricula:novaMatricula(), nome:nome, faltas:0, xp:0, nivel:1, medalhas:[], materias:novasMaterias(), mediaAnterior:null, moedas:0, missao:null };
+  return { id:uid(), matricula:novaMatricula(), nome:nome, faltas:0, xp:0, nivel:1, medalhas:[], materias:novasMaterias(), mediaAnterior:null, moedas:0, missao:null, ausencias:[] };
 }
 
+// devolve false quando o navegador recusa (ex.: atestado grande demais para o localStorage)
 function salvar(){
-  try { localStorage.setItem(KEY, JSON.stringify(db)); }
-  catch(e){ aviso('Não foi possível salvar neste navegador', true); }
+  try { localStorage.setItem(KEY, JSON.stringify(db)); return true; }
+  catch(e){ aviso('Não foi possível salvar neste navegador', true); return false; }
 }
 
 function carregar(){
@@ -71,24 +72,34 @@ function carregar(){
     var ant = Number(a.mediaAnterior);
     a.mediaAnterior = (a.mediaAnterior == null || a.mediaAnterior === '' || isNaN(ant)) ? null : ant;
     prepararMissoes(a);
+    prepararFrequencia(a);
   });
   if (db.alunos.length) sel = db.alunos[0].id;
 }
 
 function semear(){
   var base = [
-    { nome:'Ana Souza',      faltas:0, notas:[9,10,8.5,9.5,9],  xp:60, nivel:5, ant:9.0 },
-    { nome:'Bruno Lima',     faltas:3, notas:[7,6.5,8,5.5,7],   xp:40, nivel:3, ant:5.6 },
-    { nome:'Carla Dias',     faltas:7, notas:[5,4.5,6,5,3.5],   xp:10, nivel:2, ant:4.0 },
-    { nome:'Diego Rocha',    faltas:1, notas:[8,7.5,9,8,8.5],   xp:30, nivel:4, ant:8.6 },
-    { nome:'Eduarda Melo',   faltas:2, notas:[6,7,6.5,7,6],     xp:50, nivel:2, ant:6.5 },
-    { nome:'Felipe Ramos',   faltas:0, notas:[9.5,9,10,9,9.5],  xp:80, nivel:6, ant:9.3 },
-    { nome:'Gabriela Nunes', faltas:4, notas:[5.5,6,7,6.5,6],   xp:20, nivel:2, ant:5.0 },
-    { nome:'Heitor Alves',   faltas:0, notas:[7,8,7.5,7,7.5],   xp:10, nivel:1, ant:null }
+    { nome:'Ana Souza',      notas:[9,10,8.5,9.5,9],  xp:60, nivel:5, ant:9.0, aus:[] },
+    { nome:'Bruno Lima',     notas:[7,6.5,8,5.5,7],   xp:40, nivel:3, ant:5.6,
+      aus:[{o:12, t:'Consulta no dentista.', s:'aceita'}, {o:25}, {o:40}] },
+    { nome:'Carla Dias',     notas:[5,4.5,6,5,3.5],   xp:10, nivel:2, ant:4.0,
+      aus:[{o:0}, {o:1}, {o:2}, {o:9, t:'Fiquei doente, estava com febre.', s:'pendente'}, {o:17}, {o:23}, {o:29}] },
+    { nome:'Diego Rocha',    notas:[8,7.5,9,8,8.5],   xp:30, nivel:4, ant:8.6, aus:[{o:8}] },
+    { nome:'Eduarda Melo',   notas:[6,7,6.5,7,6],     xp:50, nivel:2, ant:6.5, aus:[{o:15}, {o:33}] },
+    { nome:'Felipe Ramos',   notas:[9.5,9,10,9,9.5],  xp:80, nivel:6, ant:9.3, aus:[] },
+    { nome:'Gabriela Nunes', notas:[5.5,6,7,6.5,6],   xp:20, nivel:2, ant:5.0,
+      aus:[{o:1}, {o:2, t:'Precisei cuidar do meu irmão mais novo.', s:'pendente'}, {o:20}, {o:38}] },
+    { nome:'Heitor Alves',   notas:[7,8,7.5,7,7.5],   xp:10, nivel:1, ant:null, aus:[] }
   ];
   base.forEach(function(b){
     var a = novoAluno(b.nome);
-    a.faltas = b.faltas;
+    // o = dias letivos atras (0 = hoje), para a demonstracao estar sempre atual
+    a.ausencias = b.aus.map(function(x){
+      var f = novaAusencia(diasLetivosAtras(x.o));
+      if (x.t) f.just = { texto:x.t, arquivo:null, enviadaEm:new Date().toISOString(), status:x.s };
+      return f;
+    });
+    a.faltas = a.ausencias.length;
     a.xp     = b.xp;
     a.nivel  = b.nivel;
     a.mediaAnterior = b.ant;   // media do bimestre anterior, base do ranking por evolucao
