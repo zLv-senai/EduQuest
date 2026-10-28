@@ -85,6 +85,8 @@ function ligarEventos(){
   document.querySelectorAll('[data-del]').forEach(function(b){
     b.onclick = function(e){ e.stopPropagation(); removerAluno(this.dataset.del); };
   });
+
+  ligarMissoes();
 }
 
 document.querySelectorAll('.aba').forEach(function(b){

@@ -97,7 +97,7 @@ function telaPerfil(semSeletor){
   var s     = selo(m);
   var custo = 100 * a.nivel;
   var pct   = Math.min(100, (a.xp / custo) * 100);
-  var pos   = rank(a);
+  var pl    = posicaoNaLiga(a);
 
   var h = semSeletor ? '' : '<div class="card so-mobile">' + seletorAluno('selPerfil') + '</div>';
 
@@ -108,14 +108,18 @@ function telaPerfil(semSeletor){
   h +=     linhaFicha('Nome',   esc(a.nome),      '', '');
   h +=     linhaFicha('ID',     esc(a.matricula), '', '');
   h +=     linhaFicha('Selo',   s.txt,            '', corDoSelo(s.cls));
-  h +=     linhaFicha('Rank',   pos + 'º Lugar',  '', pos === 1 ? 'amarelo' : (pos <= 3 ? 'verde' : ''));
+  h +=     linhaFicha('Liga',   pl.pos + 'º · ' + esc(pl.nome), '', pl.pos === 1 ? 'amarelo' : 'ciano');
   h +=     linhaFicha('Faltas', a.faltas, 'vermelho', '');
+  h +=     linhaFicha('Moedas', a.moedas, 'amarelo', '');
   h +=     '<div class="linha-ficha">' +
              '<span class="rot amarelo">Medalhas</span>' +
              '<span class="val val-medalhas">' + medalhasResumo(a) + '</span>' +
            '</div>';
   h +=   '</div>';
   h += '</div></div>';
+
+  // so o aluno logado ve a missao e a propria liga, logo abaixo da ficha
+  if (semSeletor) h += cardMissoes(a) + cardLigaAluno(a);
 
   // progresso
   h += '<div class="card"><h2>Progresso</h2>';
@@ -253,7 +257,7 @@ function telaTurma(){
          '</div>';
   });
   h += '</div>';
-  return h;
+  return h + cardLigasProfessor();
 }
 
 /* =========================================================

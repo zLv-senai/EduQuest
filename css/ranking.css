@@ -1,0 +1,23 @@
+/* ---------- ranking por evolucao (ligas) ---------- */
+.liga-pos{text-align:center;font-size:14px;color:var(--texto);line-height:1.4;margin-bottom:12px}
+.liga-pos b{color:var(--amarelo)}
+.liga-lista,.liga-bloco{display:flex;flex-direction:column;gap:6px}
+.liga-bloco{margin-bottom:14px}
+.liga-bloco:last-child{margin-bottom:0}
+.liga-titulo{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--texto)}
+.liga-linha,.liga-prof{
+  display:flex;align-items:center;gap:8px;
+  background:var(--roxo-esc);border:2px solid var(--marinho);border-radius:12px;
+  padding:7px 10px;font-size:13px;color:var(--texto);
+}
+.liga-linha.eu{background:var(--roxo-input);border-color:var(--amarelo)}
+.liga-prof.topo{border-color:var(--amarelo)}
+.liga-n{flex:none;min-width:26px;font-weight:800;color:var(--texto-fraco)}
+.liga-nome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.liga-medias{flex:none;font-weight:700;text-align:right}
+.liga-medias small,.liga-evo small{display:block;font-size:10px;font-weight:600;color:var(--texto-fraco)}
+.liga-evo{flex:none;min-width:62px;text-align:right;font-weight:800}
+.liga-evo.pos{color:var(--verde)}
+.liga-evo.neg{color:#FFA3B5}
+.liga-evo.zero{color:var(--texto-fraco)}
+.liga-dica{margin-top:12px;font-size:12px;line-height:1.4;text-align:center;color:var(--texto-fraco)}
