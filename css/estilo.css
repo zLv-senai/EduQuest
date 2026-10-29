@@ -60,7 +60,6 @@ body{
   font-size:17px;line-height:1;cursor:pointer;font-family:inherit;
 }
 .icone:active{transform:translateY(2px)}
-.espaco{width:42px;flex:none}
 .badge{
   position:absolute;top:-7px;right:-7px;
   min-width:20px;height:20px;padding:0 4px;border-radius:10px;
@@ -123,6 +122,7 @@ button.acao:active{transform:translateY(2px);box-shadow:0 2px 0 var(--marinho)}
 button.acao.verde{background:var(--verde)}
 button.acao.cinza{background:var(--roxo-claro);color:#fff}
 button.acao.vermelha{background:var(--vermelho);color:#fff}
+button.acao:disabled{opacity:.55;cursor:wait}   /* ENVIAR espera o atestado terminar de carregar */
 
 .vazio{text-align:center;color:var(--texto-fraco);font-size:13px;padding:18px 6px;line-height:1.5}
 

@@ -9,11 +9,6 @@ function esc(s){
 function n1(v){ return (Math.round(v*10)/10).toFixed(1); }
 function semZero(v){ return n1(v).replace(/\.0$/,''); }
 
-function iniciais(nome){
-  var p = nome.trim().split(/\s+/);
-  return ((p[0]||'?')[0] + (p.length>1 ? p[p.length-1][0] : '')).toUpperCase();
-}
-
 function aviso(msg, erro){
   var d = document.createElement('div');
   d.className = 'aviso' + (erro ? ' erro' : '');
@@ -407,8 +402,8 @@ function telaEscolha(){
 /* =========================================================
    VISAO DO ALUNO
    O aluno so ve a si mesmo: nao escolhe outro aluno, nao
-   edita nota, nao ve a lista da turma. A posicao dele no
-   rank aparece, mas sem revelar a nota de ninguem.
+   edita nota, nao ve a lista da turma. A posicao dele na
+   liga aparece, mas sem revelar a nota de ninguem.
    ========================================================= */
 
 // os alertas do aluno logado, escritos na segunda pessoa

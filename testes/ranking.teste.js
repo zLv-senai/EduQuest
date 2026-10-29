@@ -49,6 +49,14 @@ assert.strictEqual(run('evolucao(db.alunos[0])'), 0);
 assert.strictEqual(run('rotuloEvo(db.alunos[0])'), 'estreante');
 assert.strictEqual(run('evolucao(Object.assign({}, db.alunos[0], {mediaAnterior:null}))'), 0);
 
+// diferenca que some no arredondamento da tela (0,0) nao e subida nem queda
+usar([mk('z','Zoe',6.52,6.5), mk('y','Yuri',6.48,6.5)]);
+assert.strictEqual(run('evolucao(db.alunos[0])'), 0);
+[0, 1].forEach(function(i){
+  assert.strictEqual(run('rotuloEvo(db.alunos[' + i + '])'), 'estável');
+  assert.strictEqual(run('fmtEvo(evolucao(db.alunos[' + i + ']))'), '0,0');
+});
+
 // card do aluno: so vizinhos, primeiro nome, sem medias
 usar([
   mk('1','Alice Souza',9.7,8),    // +1,7

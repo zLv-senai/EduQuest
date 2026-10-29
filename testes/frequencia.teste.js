@@ -45,12 +45,6 @@ t('prepararFrequencia: ordena, tira data repetida/invalida e atualiza faltas', f
   assert.strictEqual(a.faltas, 2);
 });
 
-t('dado antigo so com numero de faltas vira faltas espacadas, sem alerta', function(){
-  var a = rodar('(function(){ var a=novoAluno("X"); delete a.ausencias; a.faltas=3; return prepararFrequencia(a); })()');
-  assert.strictEqual(a.ausencias.length, 3);
-  assert.ok(rodar('sequenciaFaltas')(a).dias < 2);
-});
-
 t('arquivo com URL perigosa e descartado', function(){
   var a = rodar('(function(){ var a=novoAluno("X"); a.ausencias=[{id:"f1",data:"2026-10-28",just:{texto:"x",status:"hackeado",arquivo:{nome:"a",url:"javascript:alert(1)"}}}]; return prepararFrequencia(a); })()');
   assert.strictEqual(a.ausencias[0].just.arquivo, null);
@@ -91,6 +85,54 @@ t('alerta de faltas seguidas entra na lista do professor', function(){
   rodar('(function(a){ db.alunos.push(a); })')(a);
   var lista = rodar('alertas()');
   assert.ok(lista[0].txt.indexOf('faltou 2 dias seguidos') !== -1);
+});
+
+t('radar mostra quem justificou as faltas seguidas, mesmo com risco baixo', function(){
+  rodar('db.alunos = []');
+  var a = aluno(['2026-10-28','2026-10-29']);
+  a.materias.forEach(function(m){ m.nota = 9; });
+  a.ausencias.forEach(function(f){ f.just = { texto:'febre', arquivo:null, status:'pendente' }; });
+  rodar('(function(a){ db.alunos.push(a); })')(a);
+  assert.strictEqual(rodar('riscoEvasao')(a).nivel, 'baixo');   // justificadas, o risco cai
+  assert.ok(rodar('cardRadarEvasao()').indexOf('Teste da Silva') !== -1);
+});
+
+t('medalha Sem Faltas sai quando o aluno falta e volta quando a falta e apagada', function(){
+  var a = aluno([]), conferir = rodar('conferirMedalhas');
+  function tem(){ return a.medalhas.indexOf('Sem Faltas') !== -1; }
+  conferir(a);
+  assert.ok(tem(), 'aluno novo nasce com a medalha');
+  a.ausencias.push(rodar('novaAusencia')('2026-10-29'));
+  rodar('prepararFrequencia')(a); conferir(a);
+  assert.ok(!tem(), 'depois de faltar, perde a medalha');
+  a.ausencias = [];
+  rodar('prepararFrequencia')(a); conferir(a);
+  assert.ok(tem(), 'sem faltas de novo, volta a ter');
+});
+
+t('lerAnexo avisa com null quando recusa o arquivo (tipo errado ou PDF grande)', function(){
+  var chamadas = [];
+  function cb(arq){ chamadas.push(arq); }
+  rodar('lerAnexo')({ type:'text/plain', name:'a.txt', size:10 }, cb);
+  rodar('lerAnexo')({ type:'application/pdf', name:'g.pdf', size:2 * 1024 * 1024 }, cb);
+  assert.deepStrictEqual(chamadas, [null, null]);
+});
+
+t('registrarFalta tira a medalha Sem Faltas', function(){
+  var a = aluno([]), doc = ctx.document.getElementById;
+  rodar('conferirMedalhas')(a);
+  ctx.document.getElementById = function(){ return { value:'2026-10-29', focus:function(){} }; };
+  try { rodar('registrarFalta')(a); } finally { ctx.document.getElementById = doc; }
+  assert.strictEqual(a.faltas, 1);
+  assert.strictEqual(a.medalhas.indexOf('Sem Faltas'), -1);
+});
+
+t('formulario redesenhado comeca sem anexo, como o campo de arquivo novo', function(){
+  var doc = ctx.document.getElementById;
+  rodar('anexoTemp = { nome:"atestado-velho.jpg" }');
+  ctx.document.getElementById = function(id){ return id === 'jArquivo' ? {} : null; };
+  try { rodar('ligarFrequencia()'); } finally { ctx.document.getElementById = doc; }
+  assert.strictEqual(rodar('anexoTemp'), null);
 });
 
 var falhas = 0;

@@ -11,10 +11,10 @@ function temHistorico(a){
   return typeof a.mediaAnterior === 'number' && isFinite(a.mediaAnterior);
 }
 
-// evolucao = media atual - media do bimestre anterior (0 se nao ha historico)
+// evolucao = media atual - media do bimestre anterior, arredondada em uma casa como aparece na tela (0 se nao ha historico)
 function evolucao(a){
   if (!temHistorico(a)) return 0;
-  return Math.round((media(a) - a.mediaAnterior) * 100) / 100;
+  return Math.round((media(a) - a.mediaAnterior) * 10) / 10;
 }
 
 function nomeDaLiga(i){

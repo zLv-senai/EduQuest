@@ -73,8 +73,19 @@ function carregar(){
     a.mediaAnterior = (a.mediaAnterior == null || a.mediaAnterior === '' || isNaN(ant)) ? null : ant;
     prepararMissoes(a);
     prepararFrequencia(a);
+    conferirMedalhas(a);   // dado salvo antes de 28/10 pode ter 'Sem Faltas' em aluno com falta
   });
   if (db.alunos.length) sel = db.alunos[0].id;
+}
+
+// outra aba salvou: le de novo, senao o proximo salvar() desta aba apagaria o que ela gravou
+function recarregarDeOutraAba(e){
+  if (e.key !== null && e.key !== KEY) return;   // key null = a outra aba limpou o localStorage
+  var s = sel;
+  carregar();
+  if (acharAluno(s)) sel = s;
+  if (perfil === 'aluno' && !acharAluno(euSou)) { perfil = null; euSou = null; }
+  render();
 }
 
 function semear(){
@@ -96,7 +107,7 @@ function semear(){
     // o = dias letivos atras (0 = hoje), para a demonstracao estar sempre atual
     a.ausencias = b.aus.map(function(x){
       var f = novaAusencia(diasLetivosAtras(x.o));
-      if (x.t) f.just = { texto:x.t, arquivo:null, enviadaEm:new Date().toISOString(), status:x.s };
+      if (x.t) f.just = { texto:x.t, arquivo:null, status:x.s };
       return f;
     });
     a.faltas = a.ausencias.length;

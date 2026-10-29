@@ -52,11 +52,7 @@ function arquivoValido(arq){
 
 // normaliza o que veio do localStorage; nunca salva
 function prepararFrequencia(a){
-  if (!Array.isArray(a.ausencias)) {
-    // dado antigo so tinha o numero de faltas: vira uma falta por semana, sem justificativa
-    a.ausencias = [];
-    for (var i = 0; i < (Number(a.faltas) || 0); i++) a.ausencias.push(novaAusencia(diasLetivosAtras(5 * i + 3)));
-  }
+  if (!Array.isArray(a.ausencias)) a.ausencias = [];
   var vistas = {};
   a.ausencias = a.ausencias.filter(function(f){
     if (!f || !RE_DATA.test(f.data) || vistas[f.data]) return false;
@@ -180,7 +176,7 @@ function blocoArquivo(f){
 function cardRadarEvasao(){
   var lista = db.alunos
     .map(function(a){ return { a:a, r:riscoEvasao(a), s:sequenciaFaltas(a) }; })
-    .filter(function(x){ return x.r.nivel !== 'baixo'; })
+    .filter(function(x){ return x.r.nivel !== 'baixo' || justPendentes(x.a); })
     .sort(function(x, y){ return y.r.pontos - x.r.pontos; });
 
   var h = '<div class="card freq-radar"><h2>&#128680; Alerta de evasão</h2>';
@@ -295,17 +291,18 @@ function formJustificativa(f){
 }
 
 // le o arquivo escolhido; foto e reduzida em canvas para caber no localStorage
+// pronto(arq) roda uma vez so: com o arquivo, ou com null se foi recusado ou falhou
 function lerAnexo(arquivo, pronto){
   var ehPdf = arquivo.type === 'application/pdf';
-  if (!ehPdf && !/^image\//.test(arquivo.type)) { aviso('Envie uma foto ou um PDF', true); return; }
-  if (ehPdf && arquivo.size > MAX_PDF_BYTES) { aviso('PDF grande demais (máx. 900 KB). Tire uma foto do atestado.', true); return; }
+  if (!ehPdf && !/^image\//.test(arquivo.type)) { aviso('Envie uma foto ou um PDF', true); pronto(null); return; }
+  if (ehPdf && arquivo.size > MAX_PDF_BYTES) { aviso('PDF grande demais (máx. 900 KB). Tire uma foto do atestado.', true); pronto(null); return; }
 
   var leitor = new FileReader();
-  leitor.onerror = function(){ aviso('Não foi possível ler o arquivo', true); };
+  leitor.onerror = function(){ aviso('Não foi possível ler o arquivo', true); pronto(null); };
   leitor.onload = function(){
     if (ehPdf) { pronto({ nome:arquivo.name, tipo:'application/pdf', url:leitor.result }); return; }
     var img = new Image();
-    img.onerror = function(){ aviso('Imagem inválida', true); };
+    img.onerror = function(){ aviso('Imagem inválida', true); pronto(null); };
     img.onload = function(){
       var fator = Math.min(1, MAX_IMG_LADO / Math.max(img.width, img.height));
       var cv = document.createElement('canvas');
@@ -333,7 +330,7 @@ function enviarJustificativa(a, faltaId){
   if (!texto && !anexoTemp) { aviso('Escreva o motivo ou anexe o atestado', true); return; }
 
   var antes = f.just;
-  f.just = { texto:texto.slice(0, 500), arquivo:anexoTemp, enviadaEm:new Date().toISOString(), status:'pendente' };
+  f.just = { texto:texto.slice(0, 500), arquivo:anexoTemp, status:'pendente' };
   if (!salvar()) {
     f.just = antes;   // nao deixa na tela algo que nao foi salvo
     aviso('Não coube no navegador. Tente uma foto menor ou envie só o texto.', true);
@@ -355,6 +352,7 @@ function registrarFalta(a){
 
   a.ausencias.push(novaAusencia(d));
   prepararFrequencia(a);
+  conferirMedalhas(a);
   salvar();
   render();
   aviso('Falta registrada: ' + dataCurta(d));
@@ -409,8 +407,10 @@ function ligarFrequencia(){
       var id = this.dataset.delFalta, f = a && acharAusencia(a, id);
       if (!f) return;
       confirmar('Apagar a falta de ' + dataCurta(f.data) + '? A justificativa dela também some.', function(){
-        a.ausencias = a.ausencias.filter(function(x){ return x.id !== id; });
-        prepararFrequencia(a); salvar(); render();
+        var v = acharAluno(a.id);   // outra aba pode ter salvo com a janela aberta: usa o aluno do db atual
+        if (!v) return;
+        v.ausencias = v.ausencias.filter(function(x){ return x.id !== id; });
+        prepararFrequencia(v); conferirMedalhas(v); salvar(); render();
         aviso('Falta apagada');
       });
     };
@@ -443,9 +443,18 @@ function ligarFrequencia(){
     };
   });
   var ja = document.getElementById('jArquivo');
+  if (ja) anexoTemp = null;   // formulario recem-desenhado: o campo de arquivo esta vazio
   if (ja) ja.onchange = function(){
+    var prev = document.getElementById('jPreview'), env = document.getElementById('btnEnviarJust');
+    anexoTemp = null;                  // trocou o arquivo: o anterior nao vale mais
+    if (prev) prev.innerHTML = '';
     if (!this.files || !this.files[0]) return;
-    lerAnexo(this.files[0], function(arq){ anexoTemp = arq; mostrarPreview(arq); });
+    if (env) env.disabled = true;      // so envia depois de ler o anexo
+    lerAnexo(this.files[0], function(arq){
+      anexoTemp = arq;
+      if (arq) mostrarPreview(arq);
+      if (env) env.disabled = false;
+    });
   };
   var bc = document.getElementById('btnCancelarJust');
   if (bc) bc.onclick = function(){ justificando = null; anexoTemp = null; render(); };

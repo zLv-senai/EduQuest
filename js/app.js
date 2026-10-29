@@ -44,11 +44,12 @@ function render(){
 }
 
 // ao arrastar a janela entre celular e monitor, redesenha no layout certo
-var eraDesktop = null;
+var eraDesktop = ehDesktop();
 window.addEventListener('resize', function(){
   var agora = ehDesktop();
   if (agora !== eraDesktop) { eraDesktop = agora; render(); }
 });
+window.addEventListener('storage', recarregarDeOutraAba);
 
 function ligarEventos(){
   var sp = document.getElementById('selPerfil');
